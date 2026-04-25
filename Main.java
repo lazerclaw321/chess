@@ -1,4 +1,7 @@
+import java.awt.Color;
 import java.util.*;
+import javax.swing.*;
+
 public class Main {
     static int ply = 0;
     static boolean whiteShortCastlingRights = true;
@@ -538,6 +541,12 @@ public class Main {
     }    
 
     public static void main(String[] args) {
+
+        JFrame frame = new JFrame("Chess Bot");
+        frame.setSize(800, 800);
+        frame.getContentPane().setBackground(Color.BLACK);
+        frame.setVisible(true);
+
         Scanner scanner = new Scanner(System.in);        
         boolean whiteToMove = true;
         int selectedX, selectedY;
