@@ -5,6 +5,7 @@ public class Main {
     static boolean whiteLongCastlingRights = true;
     static boolean blackShortCastlingRights = true;
     static boolean blackLongCastlingRights = true;
+    static int enPassantRow = -1;
     static boolean midGame = false;
     static double scorePosGlobal;
     static int movesCalculated = 0;
@@ -84,6 +85,26 @@ public class Main {
    
     public static char makeMove(int x, int y, int x2, int y2, boolean realMove) {
         char lastCaptured = (char) board[y2][x2];
+        if (realMove && board[y][x] == 'p' && lastCaptured == ' ' && x2 == enPassantRow && y2 == 2) {
+            lastCaptured = board[3][x2];
+            board[3][x2] = ' ';
+        }
+        if (realMove && board[y][x] == 'P' && lastCaptured == ' ' && x2 == enPassantRow && y2 == 5) {
+            lastCaptured = board[5][x2];
+            board[3][x2] = ' ';
+        }
+        if (realMove){
+            if (board[y][x] == 'P' && y2 == 3) {
+                enPassantRow = x;
+            }
+            else if (board[y][x] == 'p' && y2 == 4) {
+                enPassantRow = x;
+            }
+            else {
+                enPassantRow = -1;
+            }
+        }
+        
         if (realMove && board[y][x] == 'K') {
             blackShortCastlingRights = false;
             blackLongCastlingRights = false;
@@ -327,10 +348,10 @@ public class Main {
                         moves.add(new int[]{x, y - 2});
                     }
                 }
-                if (y > 0 && x > 0 && board[y - 1][x - 1] != ' ' && Character.isLowerCase(board[y - 1][x - 1]) != whiteToMove) {
+                if (y > 0 && x > 0 && ((board[y - 1][x - 1] != ' ' && Character.isLowerCase(board[y - 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow || board[y][x - 1] == 'P'))) {
                     moves.add(new int[]{x - 1, y - 1});
                 }
-                if (y > 0 && x < 7 && board[y - 1][x + 1] != ' ' && Character.isLowerCase(board[y - 1][x + 1]) != whiteToMove) {
+                if (y > 0 && x < 7 && (board[y - 1][x + 1] != ' ' && Character.isLowerCase(board[y - 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow || board[y][x + 1] == 'P'))) {
                     moves.add(new int[]{x + 1, y - 1});
                 }
             }
@@ -341,10 +362,10 @@ public class Main {
                         moves.add(new int[]{x, y + 2});
                     }
                 }
-                if (y < 7 && x > 0 && board[y + 1][x - 1] != ' ' && Character.isLowerCase(board[y + 1][x - 1]) != whiteToMove) {
+                if (y < 7 && x > 0 && ((board[y + 1][x - 1] != ' ' && Character.isLowerCase(board[y + 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow || board[y][x - 1] == 'p'))) {
                     moves.add(new int[]{x - 1, y + 1});
                 }
-                if (y < 7 && x < 7 && board[y + 1][x + 1] != ' ' && Character.isLowerCase(board[y + 1][x + 1]) != whiteToMove) {
+                if (y < 7 && x < 7 && (board[y + 1][x + 1] != ' ' && Character.isLowerCase(board[y + 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow || board[y][x + 1] == 'P'))) {
                     moves.add(new int[]{x + 1, y + 1});
                 }
             }
@@ -551,12 +572,13 @@ public class Main {
                 if (inCheck( whiteToMove)) {
                     System.out.println("check");
                 }
+                System.out.println(enPassantRow);
                 ply++;
                 whiteToMove = !whiteToMove;
                 //bot moves
                 int[] target = botMoves( whiteToMove, true, 2);
-                board[target[4]][target[3]] = (char) target[0];
-                board[target[2]][target[1]] = ' ';
+                makeMove(target[1], target[2], target[3], target[4], true);
+                System.out.println(enPassantRow);
                 if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
                     board[target[4]][target[3]] = 'q';
                 }
