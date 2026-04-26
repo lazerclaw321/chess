@@ -1,4 +1,4 @@
-import java.awt.Color;
+import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 
@@ -21,6 +21,9 @@ public class Main {
     static int[][] psqKing = new int[8][8];
 
     public static char[][] board = new char[8][8];
+    public static boolean printMoves = false;
+    public static int selectedX, selectedY;
+
     static {
         board[0] = new char[]{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
         board[1] = new char[]{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'};
@@ -85,7 +88,7 @@ public class Main {
         psqKing[6] = new int[]{-5, -5, -5, -5, -5, -5, -5, -5};
         psqKing[7] = new int[]{-5, 10, 10, 0, 0, 10, 10, -5};
     }
-   
+
     public static char makeMove(int x, int y, int x2, int y2, boolean realMove) {
         char lastCaptured = (char) board[y2][x2];
         if (realMove && board[y][x] == 'p' && lastCaptured == ' ' && x2 == enPassantRow && y2 == 2) {
@@ -544,12 +547,13 @@ public class Main {
 
         JFrame frame = new JFrame("Chess Bot");
         frame.setSize(800, 800);
-        frame.getContentPane().setBackground(Color.BLACK);
+        GamePanel panel = new GamePanel();
+        frame.getContentPane().add(panel);
         frame.setVisible(true);
-
+        
         Scanner scanner = new Scanner(System.in);        
         boolean whiteToMove = true;
-        int selectedX, selectedY;
+        
         //gameloop
         while (true) {
             selectedX = scanner.nextInt();
@@ -567,6 +571,7 @@ public class Main {
                 for (int[] move : moves) {
                     if (move[0] == position[0] && move[1] == position[1]) {
                         makeMove(selectedX, selectedY, moveX, moveY, true);
+                        panel.repaint();
                         if (moveY == 0 && piece == 'p') {
                             board[moveY][moveX] = 'q';
                         }
@@ -581,12 +586,13 @@ public class Main {
                 if (inCheck( whiteToMove)) {
                     System.out.println("check");
                 }
-                System.out.println(enPassantRow);
+                
                 ply++;
                 whiteToMove = !whiteToMove;
                 //bot moves
                 int[] target = botMoves( whiteToMove, true, 2);
                 makeMove(target[1], target[2], target[3], target[4], true);
+                panel.repaint();
                 System.out.println(enPassantRow);
                 if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
                     board[target[4]][target[3]] = 'q';
