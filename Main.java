@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     static int ply = 0;
@@ -22,7 +23,9 @@ public class Main {
 
     public static char[][] board = new char[8][8];
     public static boolean printMoves = false;
-    public static int selectedX, selectedY;
+    public static Vector<int[]> moves;
+    public static int selectedX = -1, selectedY = -1;
+    public static int moveX = -1, moveY = -1;
 
     static {
         board[0] = new char[]{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
@@ -354,10 +357,10 @@ public class Main {
                         moves.add(new int[]{x, y - 2});
                     }
                 }
-                if (y > 0 && x > 0 && ((board[y - 1][x - 1] != ' ' && Character.isLowerCase(board[y - 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow || board[y][x - 1] == 'P'))) {
+                if (y > 0 && x > 0 && ((board[y - 1][x - 1] != ' ' && Character.isLowerCase(board[y - 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow && board[y][x - 1] == 'P'))) {
                     moves.add(new int[]{x - 1, y - 1});
                 }
-                if (y > 0 && x < 7 && (board[y - 1][x + 1] != ' ' && Character.isLowerCase(board[y - 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow || board[y][x + 1] == 'P'))) {
+                if (y > 0 && x < 7 && (board[y - 1][x + 1] != ' ' && Character.isLowerCase(board[y - 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow && board[y][x + 1] == 'P'))) {
                     moves.add(new int[]{x + 1, y - 1});
                 }
             }
@@ -368,10 +371,10 @@ public class Main {
                         moves.add(new int[]{x, y + 2});
                     }
                 }
-                if (y < 7 && x > 0 && ((board[y + 1][x - 1] != ' ' && Character.isLowerCase(board[y + 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow || board[y][x - 1] == 'p'))) {
+                if (y < 7 && x > 0 && ((board[y + 1][x - 1] != ' ' && Character.isLowerCase(board[y + 1][x - 1]) != whiteToMove) || (x - 1 == enPassantRow && board[y][x - 1] == 'p'))) {
                     moves.add(new int[]{x - 1, y + 1});
                 }
-                if (y < 7 && x < 7 && (board[y + 1][x + 1] != ' ' && Character.isLowerCase(board[y + 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow || board[y][x + 1] == 'P'))) {
+                if (y < 7 && x < 7 && (board[y + 1][x + 1] != ' ' && Character.isLowerCase(board[y + 1][x + 1]) != whiteToMove || (x + 1 == enPassantRow && board[y][x + 1] == 'p'))) {
                     moves.add(new int[]{x + 1, y + 1});
                 }
             }
@@ -550,28 +553,47 @@ public class Main {
         GamePanel panel = new GamePanel();
         frame.getContentPane().add(panel);
         frame.setVisible(true);
-        
+        frame.addMouseListener(new UserMouse());
+
         Scanner scanner = new Scanner(System.in);        
         boolean whiteToMove = true;
         
         //gameloop
         while (true) {
-            selectedX = scanner.nextInt();
-            selectedY = scanner.nextInt();
+            while (selectedX == -1 && selectedY == -1) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             if (board[selectedY][selectedX] != ' ') {
                
                 char piece = board[selectedY][selectedX];
-                Vector<int[]> moves = movePiece(selectedX, selectedY,  whiteToMove, false);
+                printMoves = true;
+                moves = movePiece(selectedX, selectedY,  whiteToMove, false);
+                panel.repaint();
                 for (int[] move : moves) {
                     System.out.println("Move to: " + move[0] + ", " + move[1]);
                 }
-                int moveX = scanner.nextInt();
-                int moveY = scanner.nextInt();
+                while (moveX == -1 && moveY == -1) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                printMoves = false;
                 int[] position = new int[]{moveX, moveY};
                 for (int[] move : moves) {
                     if (move[0] == position[0] && move[1] == position[1]) {
                         makeMove(selectedX, selectedY, moveX, moveY, true);
                         panel.repaint();
+                        System.out.println(enPassantRow);
+                        selectedX = -1;
+                        selectedY = -1;
+                        moveX = -1;
+                        moveY = -1;
                         if (moveY == 0 && piece == 'p') {
                             board[moveY][moveX] = 'q';
                         }

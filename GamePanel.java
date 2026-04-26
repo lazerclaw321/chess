@@ -1,7 +1,9 @@
 import javax.swing.*;
+
 import java.awt.*;
 
 public class GamePanel extends JPanel {
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
@@ -72,6 +74,13 @@ public class GamePanel extends JPanel {
             }
         }
         
+        if (Main.printMoves) {
+            for (int[] move : Main.moves) {
+                g2.setColor(Color.ORANGE);
+                g2.fillOval(move[0] * 50 + 20, move[1] * 50 + 20, 10, 10);
+            }
+        }
+
         g2.dispose();
     }
 }
