@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import java.util.concurrent.TimeUnit;
@@ -504,6 +503,7 @@ public class Main {
    
     public static int search(boolean whiteToMove, int depth, int a, int b, boolean newBotChanges, int extensions) {
         int alpha = a, beta = b;
+        boolean extend = false;
         movesCalculated++;
         if (depth == 0) {
             return quiescenceSearch(whiteToMove, alpha, beta, depth, newBotChanges);
@@ -514,9 +514,7 @@ public class Main {
                 return -99999999; 
             }
             else if (extensions > 0) {
-                depth++;
-                extensions--;
-                System.out.println("extended" + extensions);
+                extend = true;
             }
         }
         if (allMoves.size() == 0) {
@@ -524,7 +522,13 @@ public class Main {
         }
         for (int[] move : allMoves) {
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            int eval = -search(!whiteToMove, depth - 1, -beta, -alpha, newBotChanges, extensions);
+            int eval;
+            if (extend) {
+                eval = -search(!whiteToMove, depth, -beta, -alpha, newBotChanges, extensions - 1);
+            }
+            else {
+                eval = -search(!whiteToMove, depth - 1, -beta, -alpha, newBotChanges, extensions);
+            } 
             int newMoveScore = scorePosition(whiteToMove, newBotChanges);
             unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
             if (eval > beta) {
@@ -541,11 +545,10 @@ public class Main {
     public static int[] botMoves(boolean whiteToMove, boolean newBotChanges, int depth) {
         Vector<int[]> allMoves = fetchMoves(whiteToMove, false, false, false);
         movesCalculated++;
-        int extensions = 2;
+        boolean extend = false;
         if (inCheck(whiteToMove)) {
-            extensions -= 1;
+            extend = true;
             depth += 1;
-            System.out.println("extended" + extensions);
         }
         int maxScore = -999999;
         if (allMoves.size() == 0) {
@@ -555,7 +558,14 @@ public class Main {
         for (int pos = 0; pos < allMoves.size(); pos++) {
             int[] move = allMoves.get(pos);
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            int evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges, extensions);
+            int evaluation;
+            if (extend) {
+                evaluation = -search(!whiteToMove, depth, -9999999, 9999999, newBotChanges, 0);
+            }
+            else {
+                evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges, 1);
+            }
+             
             if (evaluation >= maxScore) {
                 maxScore = evaluation;
                 optimalMove = move;
@@ -577,9 +587,7 @@ public class Main {
         frame.setVisible(true);
         frame.addMouseListener(new UserMouse());
 
-        Scanner scanner = new Scanner(System.in);        
         boolean whiteToMove = true;
-        
         //gameloop
         while (true) {
             while (moveX == -1 && moveY == -1) {
