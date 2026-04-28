@@ -26,6 +26,7 @@ public class Main {
     public static Vector<int[]> moves;
     public static int selectedX = -1, selectedY = -1;
     public static int moveX = -1, moveY = -1;
+    public static GamePanel panel = new GamePanel();
 
     static {
         board[0] = new char[]{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
@@ -90,6 +91,7 @@ public class Main {
         psqKing[5] = new int[]{-5, -5, -5, -5, -5, -5, -5, -5};
         psqKing[6] = new int[]{-5, -5, -5, -5, -5, -5, -5, -5};
         psqKing[7] = new int[]{-5, 10, 10, 0, 0, 10, 10, -5};
+        getLegalMoves(0, 0, true);
     }
 
     public static char makeMove(int x, int y, int x2, int y2, boolean realMove) {
@@ -382,6 +384,19 @@ public class Main {
         return moves;
     }  
 
+    public static Vector<int[]> getLegalMoves(int x, int y, boolean whiteToMove) {
+        Vector<int[]> moves = movePiece(x, y, whiteToMove, false);
+        Vector<int[]> legalMoves = new Vector<int[]>();
+        for (int[] move : moves) {
+            char lastCaptured = makeMove(x, y, move[0], move[1], false);
+            if (!inCheck( whiteToMove)) {
+                legalMoves.add(move);
+            }
+            unmakeMove(x, y, move[0], move[1], false, lastCaptured);
+        }
+        return legalMoves;
+    }
+
     public static boolean inCheck(boolean whiteToMove) {
         int x = -1, y = -1;
         for (int i = 0; i < 8; i++) {
@@ -468,48 +483,55 @@ public class Main {
             return beta;
         }
         alpha = Math.max(alpha, eval);
-        Vector<int[]> captures = fetchMoves( whiteToMove, false, false, true);
-        for (int[] move : captures) {
-            char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            if (move[5] > 400) {
+        if (depth > -5) {
+            Vector<int[]> captures = fetchMoves( whiteToMove, false, false, true);
+            for (int[] move : captures) {
+                char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
+                if (move[5] > 400) {
+                    unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
+                    return move[5];
+                }
+                eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
                 unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                return move[5];
+                if (eval > beta) {
+                    return beta;
+                }
+                alpha = Math.max(alpha, eval);
             }
-            eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
-            unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-            if (eval > beta) {
-                return beta;
-            }
-            alpha = Math.max(alpha, eval);
         }
         return alpha;
     }
    
-    public static int search(boolean whiteToMove, int depth, int a, int b, boolean newBotChanges) {
+    public static int search(boolean whiteToMove, int depth, int a, int b, boolean newBotChanges, int extensions) {
         int alpha = a, beta = b;
         movesCalculated++;
         if (depth == 0) {
-            return quiescenceSearch( whiteToMove, alpha, beta, depth, newBotChanges);
+            return quiescenceSearch(whiteToMove, alpha, beta, depth, newBotChanges);
         }
-        Vector<int[]> allMoves = fetchMoves( whiteToMove, false, false, false);
+        Vector<int[]> allMoves = fetchMoves(whiteToMove, false, false, false);
+        if (inCheck(whiteToMove)) {
+            if (allMoves.size() == 0) {
+                return -99999999; 
+            }
+            else if (extensions > 0) {
+                depth++;
+                extensions--;
+                System.out.println("extended" + extensions);
+            }
+        }
         if (allMoves.size() == 0) {
-            if (inCheck( whiteToMove)) {
-                return -99999999; //checkmate
-            }
-            else {
-                return 0; //stalemate
-            }
+            return 0;
         }
         for (int[] move : allMoves) {
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            int eval = -search( !whiteToMove, depth - 1, -beta, -alpha, newBotChanges);
-            int newMoveScore = scorePosition( whiteToMove, newBotChanges);
+            int eval = -search(!whiteToMove, depth - 1, -beta, -alpha, newBotChanges, extensions);
+            int newMoveScore = scorePosition(whiteToMove, newBotChanges);
             unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
             if (eval > beta) {
                 return beta;
             }
-            if (newMoveScore - scorePosition( whiteToMove, newBotChanges) < -300) {
-                return quiescenceSearch( whiteToMove, alpha, beta, depth, newBotChanges);
+            if (newMoveScore - scorePosition(whiteToMove, newBotChanges) < -300) {
+                return quiescenceSearch(whiteToMove, alpha, beta, depth, newBotChanges);
             }
             alpha = Math.max(alpha, eval);
         }
@@ -519,11 +541,11 @@ public class Main {
     public static int[] botMoves(boolean whiteToMove, boolean newBotChanges, int depth) {
         Vector<int[]> allMoves = fetchMoves(whiteToMove, false, false, false);
         movesCalculated++;
+        int extensions = 2;
         if (inCheck(whiteToMove)) {
-            System.out.println("in check");
-            for (int[] move : allMoves) {
-                System.out.println(Arrays.toString(move));
-            }
+            extensions -= 1;
+            depth += 1;
+            System.out.println("extended" + extensions);
         }
         int maxScore = -999999;
         if (allMoves.size() == 0) {
@@ -533,7 +555,7 @@ public class Main {
         for (int pos = 0; pos < allMoves.size(); pos++) {
             int[] move = allMoves.get(pos);
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            int evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges);
+            int evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges, extensions);
             if (evaluation >= maxScore) {
                 maxScore = evaluation;
                 optimalMove = move;
@@ -549,8 +571,8 @@ public class Main {
     public static void main(String[] args) {
 
         JFrame frame = new JFrame("Chess Bot");
-        frame.setSize(500, 500);
-        GamePanel panel = new GamePanel();
+        frame.setSize(672 + 13, 672 + 38);
+        panel.getImages();
         frame.getContentPane().add(panel);
         frame.setVisible(true);
         frame.addMouseListener(new UserMouse());
@@ -560,91 +582,74 @@ public class Main {
         
         //gameloop
         while (true) {
-            while (selectedX == -1 && selectedY == -1) {
+            while (moveX == -1 && moveY == -1) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            if (board[selectedY][selectedX] != ' ') {
-               
-                char piece = board[selectedY][selectedX];
-                printMoves = true;
-                moves = movePiece(selectedX, selectedY,  whiteToMove, false);
-                panel.repaint();
-                for (int[] move : moves) {
-                    System.out.println("Move to: " + move[0] + ", " + move[1]);
-                }
-                while (moveX == -1 && moveY == -1) {
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+            char piece = board[selectedY][selectedX];
+            printMoves = false;
+            int[] position = new int[]{moveX, moveY};
+            for (int[] move : moves) {
+                if (move[0] == position[0] && move[1] == position[1]) {
+                    makeMove(selectedX, selectedY, moveX, moveY, true);
+                    panel.repaint();
+                    if (moveY == 0 && piece == 'p') {
+                        board[moveY][moveX] = 'q';
+                    }
+                    if (moveY == 7 && piece == 'P') {
+                        board[moveY][moveX] = 'Q';
+                    }
+                    selectedX = -1;
+                    selectedY = -1;
+                    moveX = -1;
+                    moveY = -1;
+                    for (char[] row : board) {
+                        System.out.println(Arrays.toString(row));
                     }
                 }
-                printMoves = false;
-                int[] position = new int[]{moveX, moveY};
-                for (int[] move : moves) {
-                    if (move[0] == position[0] && move[1] == position[1]) {
-                        makeMove(selectedX, selectedY, moveX, moveY, true);
-                        panel.repaint();
-                        System.out.println(enPassantRow);
-                        selectedX = -1;
-                        selectedY = -1;
-                        moveX = -1;
-                        moveY = -1;
-                        if (moveY == 0 && piece == 'p') {
-                            board[moveY][moveX] = 'q';
-                        }
-                        if (moveY == 7 && piece == 'P') {
-                            board[moveY][moveX] = 'Q';
-                        }
-                        for (char[] row : board) {
-                            System.out.println(Arrays.toString(row));
-                        }
-                    }
-                }
-                if (inCheck( whiteToMove)) {
-                    System.out.println("check");
-                }
-                
-                ply++;
-                whiteToMove = !whiteToMove;
-                //bot moves
-                int[] target = botMoves( whiteToMove, true, 2);
-                makeMove(target[1], target[2], target[3], target[4], true);
-                panel.repaint();
-                System.out.println(enPassantRow);
-                if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
-                    board[target[4]][target[3]] = 'q';
-                }
-                if (target[4] == 7 && board[target[4]][target[3]] == 'P') {
-                    board[target[4]][target[3]] = 'Q';
-                }
-                System.out.println("--------------------------------------------" + ply);
-                for (char[] row : board) {
-                    System.out.println(Arrays.toString(row));
-                }
-                ply++;
-                whiteToMove = !whiteToMove;
-                System.out.println("___________________________________________" + ply);
-               /*
-                target = botMoves( whiteToMove, false);
-                board[target[4]][target[3]] = (char) target[0];
-                board[target[2]][target[1]] = ' ';
-                if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
-                    board[target[4]][target[3]] = 'q';
-                }
-                if (target[4] == 7 && board[target[4]][target[3]] == 'P') {
-                    board[target[4]][target[3]] = 'Q';
-                }
-                for (char[] row : board) {
-                    System.out.println(Arrays.toString(row));
-                }
-                whiteToMove = !whiteToMove;
-                ply++;*/
             }
+            if (inCheck( whiteToMove)) {
+                System.out.println("check");
+            }
+            
+            ply++;
+            whiteToMove = !whiteToMove;
+            //bot moves
+            int[] target = botMoves( whiteToMove, true, 2);
+            makeMove(target[1], target[2], target[3], target[4], true);
+            panel.repaint();
+            System.out.println(enPassantRow);
+            if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
+                board[target[4]][target[3]] = 'q';
+            }
+            if (target[4] == 7 && board[target[4]][target[3]] == 'P') {
+                board[target[4]][target[3]] = 'Q';
+            }
+            System.out.println("--------------------------------------------" + ply);
+            for (char[] row : board) {
+                System.out.println(Arrays.toString(row));
+            }
+            ply++;
+            whiteToMove = !whiteToMove;
+            System.out.println("___________________________________________" + ply);
+            /*
+            target = botMoves( whiteToMove, false);
+            board[target[4]][target[3]] = (char) target[0];
+            board[target[2]][target[1]] = ' ';
+            if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
+                board[target[4]][target[3]] = 'q';
+            }
+            if (target[4] == 7 && board[target[4]][target[3]] == 'P') {
+                board[target[4]][target[3]] = 'Q';
+            }
+            for (char[] row : board) {
+                System.out.println(Arrays.toString(row));
+            }
+            whiteToMove = !whiteToMove;
+            ply++;*/
         }
     }
 }
