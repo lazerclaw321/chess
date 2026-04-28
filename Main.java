@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
+    
     static int ply = 0;
     static boolean whiteShortCastlingRights = true;
     static boolean whiteLongCastlingRights = true;
