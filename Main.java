@@ -621,7 +621,6 @@ public class Main {
             int[] target = botMoves( whiteToMove, true, 2);
             makeMove(target[1], target[2], target[3], target[4], true);
             panel.repaint();
-            System.out.println(enPassantRow);
             if (target[4] == 0 && board[target[4]][target[3]] == 'p') {
                 board[target[4]][target[3]] = 'q';
             }
