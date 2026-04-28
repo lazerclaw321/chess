@@ -1,3 +1,4 @@
+import java.time.Instant;
 import java.util.*;
 import javax.swing.*;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,7 @@ public class Main {
     static boolean midGame = false;
     static double scorePosGlobal;
     static int movesCalculated = 0;
+    static long startingTime;
 
     static int[][] psqPawn = new int[8][8];
     static int[][] psqKnight = new int[8][8];
@@ -542,36 +544,42 @@ public class Main {
         return alpha;
     }    
 
-    public static int[] botMoves(boolean whiteToMove, boolean newBotChanges, int depth) {
+    public static int[] botMoves(boolean whiteToMove, boolean newBotChanges) {
         Vector<int[]> allMoves = fetchMoves(whiteToMove, false, false, false);
+        int depth = 1;
         movesCalculated++;
         boolean extend = false;
         if (inCheck(whiteToMove)) {
             extend = true;
-            depth += 1;
         }
         int maxScore = -999999;
         if (allMoves.size() == 0) {
             return new int[] {};
         }
-        int[] optimalMove = new int[5];        
-        for (int pos = 0; pos < allMoves.size(); pos++) {
-            int[] move = allMoves.get(pos);
-            char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            int evaluation;
-            if (extend) {
-                evaluation = -search(!whiteToMove, depth, -9999999, 9999999, newBotChanges, 0);
+        int[] optimalMove = new int[5];  
+        while (Instant.now().toEpochMilli() - startingTime < 5000) {
+            for (int pos = 0; pos < allMoves.size(); pos++) {
+                if (Instant.now().toEpochMilli() - startingTime < 5000) {
+                    int[] move = allMoves.get(pos);
+                    char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
+                    int evaluation;
+                    if (extend) {
+                        evaluation = -search(!whiteToMove, depth, -9999999, 9999999, newBotChanges, 0);
+                    }
+                    else {
+                        evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges, 1);
+                    }
+                    
+                    if (evaluation >= maxScore || (optimalMove[0] == move[0] && optimalMove[1] == move[1] && optimalMove[2] == move[2] && optimalMove[3] == move[3] && optimalMove[4] == move[4])) {
+                        maxScore = evaluation;
+                        optimalMove = move;
+                    }
+                    unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
+                    System.out.println(Arrays.toString(move) + " " + evaluation);
+                }
             }
-            else {
-                evaluation = -search(!whiteToMove, depth - 1, -9999999, 9999999, newBotChanges, 1);
-            }
-             
-            if (evaluation >= maxScore) {
-                maxScore = evaluation;
-                optimalMove = move;
-            }
-            unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-            System.out.println(Arrays.toString(move) + " " + evaluation);
+            depth++;
+            System.out.println(depth);
         }
         System.out.println(Arrays.toString(optimalMove) + " " + maxScore + " " + movesCalculated);
         movesCalculated = 0;
@@ -579,9 +587,9 @@ public class Main {
     }    
 
     public static void main(String[] args) {
-
         JFrame frame = new JFrame("Chess Bot");
         frame.setSize(672 + 13, 672 + 38);
+        frame.setResizable(false);
         panel.getImages();
         frame.getContentPane().add(panel);
         frame.setVisible(true);
@@ -604,6 +612,8 @@ public class Main {
                 if (move[0] == position[0] && move[1] == position[1]) {
                     makeMove(selectedX, selectedY, moveX, moveY, true);
                     panel.repaint();
+                    ply++;
+                    whiteToMove = !whiteToMove;
                     if (moveY == 0 && piece == 'p') {
                         board[moveY][moveX] = 'q';
                     }
@@ -623,10 +633,10 @@ public class Main {
                 System.out.println("check");
             }
             
-            ply++;
-            whiteToMove = !whiteToMove;
+            
             //bot moves
-            int[] target = botMoves( whiteToMove, true, 2);
+            startingTime = Instant.now().toEpochMilli();
+            int[] target = botMoves(whiteToMove, true);
             makeMove(target[1], target[2], target[3], target[4], true);
             panel.repaint();
             if (target[4] == 0 && board[target[4]][target[3]] == 'p') {

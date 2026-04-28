@@ -34,11 +34,11 @@ public class GamePanel extends JPanel {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if ((i + j) % 2 == 1) {
+                if ((i + j) % 2 == 0) {
                     g2.setColor(Color.WHITE);
                 }
                 else{
-                    g2.setColor(Color.DARK_GRAY);
+                    g2.setColor(new Color(30, 68, 44));
                 }
                 g2.fillRect(i * 84, j * 84, 84, 84);
             }

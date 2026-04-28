@@ -7,7 +7,6 @@ public class UserMouse implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         Point position = MouseInfo.getPointerInfo().getLocation();
         Point frameLocation = Main.panel.getLocationOnScreen();
-        System.out.println((position.x + " " + frameLocation.x) + " " + (position.y + " " + frameLocation.y));
         int tileX = (int) Math.floor(((double) position.x - frameLocation.x) / 84);
         int tileY = (int) Math.floor(((double) position.y - frameLocation.y) / 84);
         if (Main.printMoves) {
@@ -48,8 +47,6 @@ public class UserMouse implements MouseListener {
                 }
             }
         }
-        
-        System.out.println(tileX + " " + tileY);
     }
 
     @Override
