@@ -14,13 +14,14 @@ public class Main {
     static double scorePosGlobal;
     static int movesCalculated = 0;
     static long startingTime;
+    static final long thinkingTime = 500;
 
-    static int[][] psqPawn = new int[8][8];
-    static int[][] psqKnight = new int[8][8];
-    static int[][] psqBishop = new int[8][8];
-    static int[][] psqQueen = new int[8][8];
-    static int[][] psqRook = new int[8][8];
-    static int[][] psqKing = new int[8][8];
+    static final int[][] psqPawn = new int[8][8];
+    static final int[][] psqKnight = new int[8][8];
+    static final int[][] psqBishop = new int[8][8];
+    static final int[][] psqQueen = new int[8][8];
+    static final int[][] psqRook = new int[8][8];
+    static final int[][] psqKing = new int[8][8];
 
     public static char[][] board = new char[8][8];
     public static boolean printMoves = false;
@@ -248,19 +249,6 @@ public class Main {
     public static Vector<int[]> movePiece(int x, int y, boolean whiteToMove, boolean protection) {
         Vector<int[]> moves = new Vector<int[]>();
 
-        if (whiteToMove && x == 4 && y == 7 && whiteLongCastlingRights && board[7][4] == 'k' && board[7][3] == ' ' && board[7][2] == ' ' && board[7][1] == ' ' && board[7][0] == 'r') {
-            moves.add(new int[] {x - 2, y});
-        }
-        if (!whiteToMove && x == 4 && y == 0 && blackLongCastlingRights && board[0][4] == 'K' && board[0][3] == ' ' && board[0][2] == ' ' && board[0][1] == ' ' && board[0][0] == 'R') {
-            moves.add(new int[] {x - 2, y});
-        }
-        if (whiteToMove && x == 4 && y == 7 && whiteShortCastlingRights && board[7][4] == 'k' && board[7][5] == ' ' && board[7][6] == ' ' && board[7][7] == 'r') {
-            moves.add(new int[] {x + 2, y});
-        }
-        if (!whiteToMove && x == 4 && y == 0 && blackShortCastlingRights && board[0][4] == 'k' && board[0][5] == ' ' && board[0][6] == ' ' && board[0][7] == 'r') {
-            moves.add(new int[] {x + 2, y});
-        }
-
         if (board[y][x] == 'n' || board[y][x] == 'N') {
             if (isValidMove(x - 2, y - 1,  whiteToMove, protection)) {moves.add(new int[]{x - 2, y - 1});}
             if (isValidMove(x + 2, y - 1,  whiteToMove, protection)) {moves.add(new int[]{x + 2, y - 1});}
@@ -388,9 +376,42 @@ public class Main {
     public static Vector<int[]> getLegalMoves(int x, int y, boolean whiteToMove) {
         Vector<int[]> moves = movePiece(x, y, whiteToMove, false);
         Vector<int[]> legalMoves = new Vector<int[]>();
+
+        if (!inCheck(whiteToMove)) {
+            for (int[] move : moves) {
+                if (move[0] == 3 && move[1] == 7 && whiteToMove && x == 4 && y == 7 && whiteLongCastlingRights && board[7][4] == 'k' && board[7][3] == ' ' && board[7][2] == ' ' && board[7][1] == ' ' && board[7][0] == 'r') {
+                    char lastCaptured = makeMove(x, y, x-2, y, false);
+                    if (!inCheck(whiteToMove)) {
+                        legalMoves.add(new int[] {x - 2, y});
+                    }
+                    unmakeMove(x, y, x-2, y, false, lastCaptured);
+                }
+                if (move[0] == 3 && move[1] == 0 && !whiteToMove && x == 4 && y == 0 && blackLongCastlingRights && board[0][4] == 'K' && board[0][3] == ' ' && board[0][2] == ' ' && board[0][1] == ' ' && board[0][0] == 'R') {
+                    char lastCaptured = makeMove(x, y, x-2, y, false);
+                    if (!inCheck(whiteToMove)) {
+                        legalMoves.add(new int[] {x - 2, y});
+                    }
+                    unmakeMove(x, y, x-2, y, false, lastCaptured);
+                }
+                if (move[0] == 5 && move[1] == 7 && whiteToMove && x == 4 && y == 7 && whiteShortCastlingRights && board[7][4] == 'k' && board[7][5] == ' ' && board[7][6] == ' ' && board[7][7] == 'r') {
+                    char lastCaptured = makeMove(x, y, x+2, y, false);
+                    if (!inCheck(whiteToMove)) {
+                        legalMoves.add(new int[] {x + 2, y});
+                    }
+                    unmakeMove(x, y, x+2, y, false, lastCaptured);
+                }
+                if (move[0] == 5 && move[1] == 0 && !whiteToMove && x == 4 && y == 0 && blackShortCastlingRights && board[0][4] == 'k' && board[0][5] == ' ' && board[0][6] == ' ' && board[0][7] == 'r') {
+                    char lastCaptured = makeMove(x, y, x+2, y, false);
+                    if (!inCheck(whiteToMove)) {
+                        legalMoves.add(new int[] {x + 2, y});
+                    }
+                    unmakeMove(x, y, x+2, y, false, lastCaptured);
+                }
+            }
+        }
         for (int[] move : moves) {
             char lastCaptured = makeMove(x, y, move[0], move[1], false);
-            if (!inCheck( whiteToMove)) {
+            if (!inCheck(whiteToMove)) {
                 legalMoves.add(move);
             }
             unmakeMove(x, y, move[0], move[1], false, lastCaptured);
@@ -557,9 +578,9 @@ public class Main {
             return new int[] {};
         }
         int[] optimalMove = new int[5];  
-        while (Instant.now().toEpochMilli() - startingTime < 5000) {
+        while (Instant.now().toEpochMilli() - startingTime < thinkingTime) {
             for (int pos = 0; pos < allMoves.size(); pos++) {
-                if (Instant.now().toEpochMilli() - startingTime < 5000) {
+                if (Instant.now().toEpochMilli() - startingTime < thinkingTime) {
                     int[] move = allMoves.get(pos);
                     char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
                     int evaluation;
@@ -605,6 +626,7 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+            ply++;
             char piece = board[selectedY][selectedX];
             printMoves = false;
             int[] position = new int[]{moveX, moveY};
@@ -612,7 +634,6 @@ public class Main {
                 if (move[0] == position[0] && move[1] == position[1]) {
                     makeMove(selectedX, selectedY, moveX, moveY, true);
                     panel.repaint();
-                    ply++;
                     whiteToMove = !whiteToMove;
                     if (moveY == 0 && piece == 'p') {
                         board[moveY][moveX] = 'q';
@@ -636,6 +657,11 @@ public class Main {
             
             //bot moves
             startingTime = Instant.now().toEpochMilli();
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             int[] target = botMoves(whiteToMove, true);
             makeMove(target[1], target[2], target[3], target[4], true);
             panel.repaint();
