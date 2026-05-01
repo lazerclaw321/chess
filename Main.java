@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
-    
     static int ply = 0;
     static boolean whiteShortCastlingRights = true;
     static boolean whiteLongCastlingRights = true;
@@ -40,6 +39,8 @@ public class Main {
     public static int moveX = -1, moveY = -1;
     public static GamePanel panel = new GamePanel();
     public static int[] lastMoves = new int[] {-1, -1, -1, -1};
+    public static int isMate = 0;
+    public static int[] checkTile = new int[] {-1, -1};
 
     public static void initializePst() {
         midgamePstPawn = new int[]  {
@@ -530,6 +531,20 @@ public class Main {
         return legalMoves;
     }
 
+    public static int[] fetchKingPosition(boolean whiteToMove) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[j][i] == 'K' && !whiteToMove) {
+                    return new int[] {i, j};
+                }
+                if (board[j][i] == 'k' && whiteToMove) {
+                    return new int[] {i, j};
+                }
+            }
+        }
+        return new int[] {-1, -1};
+    }
+
     public static boolean inCheck(boolean whiteToMove) {
         int x = -1, y = -1;
         for (int i = 0; i < 8; i++) {
@@ -611,20 +626,18 @@ public class Main {
         if (eval >= beta) {
             return beta;
         }
-        alpha = Math.max(alpha, eval);
-        ArrayList<int[]> captures = fetchMoves( whiteToMove, false, false, true);
-        for (int[] move : captures) {
-            char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-            if (move[5] > 400) {
-                unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                return move[5];
-            }
-            eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
-            unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-            if (eval > beta) {
-                return beta;
-            }
+        if (Instant.now().toEpochMilli() - startingTime < 15000) {
             alpha = Math.max(alpha, eval);
+            ArrayList<int[]> captures = fetchMoves( whiteToMove, false, false, true);
+            for (int[] move : captures) {
+                char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
+                eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
+                unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
+                if (eval > beta) {
+                    return beta;
+                }
+                alpha = Math.max(alpha, eval);
+            }
         }
         return alpha;
     }
@@ -647,7 +660,6 @@ public class Main {
         for (int[] move : allMoves) {
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
             int eval = -search(!whiteToMove, depth - 1, -beta, -alpha, newBotChanges);
-            int newMoveScore = scorePosition(whiteToMove, false);
             unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
             if (eval > beta) {
                 return beta;
@@ -661,10 +673,6 @@ public class Main {
         ArrayList<int[]> allMoves = fetchMoves(whiteToMove, false, false, false);
         int depth = 1;
         movesCalculated++;
-        boolean extend = false;
-        if (inCheck(whiteToMove)) {
-            extend = true;
-        }
         int maxScore = -999999;
         if (allMoves.size() == 0) {
             return new int[] {};
@@ -732,6 +740,20 @@ public class Main {
             for (int[] move : moves) {
                 if (move[0] == position[0] && move[1] == position[1]) {
                     makeMove(selectedX, selectedY, moveX, moveY, true);
+                    if (inCheck(!whiteToMove)) {
+                        checkTile = fetchKingPosition(!whiteToMove);
+                    }
+                    else {
+                        checkTile = new int[] {-1, -1};
+                    }
+                    if (fetchMoves(!whiteToMove, false, false, false).size() == 0) {
+                        if (inCheck(!whiteToMove)) {
+                            isMate = 2;
+                        }              
+                        else {
+                            isMate = 1;
+                        }  
+                    }
                     lastMoves = new int[] {selectedX, selectedY, moveX, moveY};
                     panel.repaint();
                     totalPoints = scorePosition(whiteToMove, true);
@@ -766,7 +788,21 @@ public class Main {
             }
             int[] target = botMoves(whiteToMove, true);
             makeMove(target[1], target[2], target[3], target[4], true);
+            if (inCheck(!whiteToMove)) {
+                checkTile = fetchKingPosition(!whiteToMove);
+            }
+            else {
+                checkTile = new int[] {-1, -1};
+            }
             lastMoves = new int[] {target[1], target[2], target[3], target[4]};
+            if (fetchMoves(!whiteToMove, false, false, false).size() == 0) {
+                if (inCheck(!whiteToMove)) {
+                    isMate = 2;
+                }              
+                else {
+                    isMate = 1;
+                }  
+            }
             panel.repaint();
             totalPoints = scorePosition(whiteToMove, true);
             if (target[4] == 0 && board[target[4]][target[3]] == 'p') {

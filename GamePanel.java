@@ -37,17 +37,38 @@ public class GamePanel extends JPanel {
                 if ((i + j) % 2 == 0) {
                     g2.setColor(Color.WHITE);
                     if ((i == Main.lastMoves[0] && j == Main.lastMoves[1]) ||(i == Main.lastMoves[2] && j == Main.lastMoves[3])) {
-                        g2.setColor(new Color(207, 185, 151));
+                        if (Main.isMate == 2) {
+                            g2.setColor(new Color(255, 60, 60));
+                        }
+                        else if (Main.isMate == 1) {
+                            g2.setColor(new Color(155, 155, 155));
+                        }
+                        else {
+                            g2.setColor(new Color(207, 185, 151));
+                        }
                     }
                 }
                 else{
-                    g2.setColor(new Color(30, 68, 44));
+                    g2.setColor(new Color(80, 118, 94));
                     if ((i == Main.lastMoves[0] && j == Main.lastMoves[1]) ||(i == Main.lastMoves[2] && j == Main.lastMoves[3])) {
-                        g2.setColor(new Color(157, 135, 101));
+                        if (Main.isMate == 2) {
+                            g2.setColor(new Color(255, 0, 0));
+                        }
+                        else if (Main.isMate == 1) {
+                            g2.setColor(new Color(40, 40, 40));
+                        }
+                        else {
+                            g2.setColor(new Color(157, 135, 101));
+                        }
                     }
                 }
                 g2.fillRect(i * 84, j * 84, 84, 84);
             }
+        }
+
+        if (Main.checkTile[0] != -1) {
+            g2.setColor(new Color(255, 160, 160));
+            g2.fillRect(Main.checkTile[0] * 84, Main.checkTile[1] * 84, 84, 84);
         }
 
         for (int i = 0; i < 8; i++) {
