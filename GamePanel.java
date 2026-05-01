@@ -36,9 +36,15 @@ public class GamePanel extends JPanel {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 0) {
                     g2.setColor(Color.WHITE);
+                    if ((i == Main.lastMoves[0] && j == Main.lastMoves[1]) ||(i == Main.lastMoves[2] && j == Main.lastMoves[3])) {
+                        g2.setColor(new Color(207, 185, 151));
+                    }
                 }
                 else{
                     g2.setColor(new Color(30, 68, 44));
+                    if ((i == Main.lastMoves[0] && j == Main.lastMoves[1]) ||(i == Main.lastMoves[2] && j == Main.lastMoves[3])) {
+                        g2.setColor(new Color(157, 135, 101));
+                    }
                 }
                 g2.fillRect(i * 84, j * 84, 84, 84);
             }
