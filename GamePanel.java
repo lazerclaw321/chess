@@ -7,6 +7,8 @@ import java.io.IOException;
 public class GamePanel extends JPanel {
 
     BufferedImage[] images = new BufferedImage[12];
+    public static final int pieceSize = 80;
+    public static final int tileSize = 100;
 
     public void getImages() {
         try {
@@ -62,52 +64,52 @@ public class GamePanel extends JPanel {
                         }
                     }
                 }
-                g2.fillRect(i * 84, j * 84, 84, 84);
+                g2.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
             }
         }
 
         if (Main.checkTile[0] != -1) {
             g2.setColor(new Color(255, 160, 160));
-            g2.fillRect(Main.checkTile[0] * 84, Main.checkTile[1] * 84, 84, 84);
+            g2.fillRect(Main.checkTile[0] * tileSize, Main.checkTile[1] * tileSize, tileSize, tileSize);
         }
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (Main.board[j][i] == 'P') {
-                    g2.drawImage(images[1], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[1], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'R') {
-                    g2.drawImage(images[3], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[3], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'B') {
-                    g2.drawImage(images[5], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[5], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'N') {
-                    g2.drawImage(images[7], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[7], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'Q') {
-                    g2.drawImage(images[9], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[9], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'K') {
-                    g2.drawImage(images[11], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[11], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'p') {
-                    g2.drawImage(images[0], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[0], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'r') {
-                    g2.drawImage(images[2], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[2], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'b') {
-                    g2.drawImage(images[4], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[4], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'n') {
-                    g2.drawImage(images[6], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[6], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'q') {
-                    g2.drawImage(images[8], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[8], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
                 if (Main.board[j][i] == 'k') {
-                    g2.drawImage(images[10], i * 84 + 10, j * 84 + 10, 64, 64, null);
+                    g2.drawImage(images[10], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
             }
         }
@@ -118,7 +120,7 @@ public class GamePanel extends JPanel {
                 if (Main.board[move[1]][move[0]] != ' ') {
                     g2.setColor(Color.RED);
                 }
-                g2.fillOval(move[0] * 84 + 32, move[1] * 84 + 32, 20, 20);
+                g2.fillOval(move[0] * tileSize + (tileSize - 20) / 2, move[1] * tileSize + (tileSize - 20) / 2, 20, 20);
             }
         }
 
