@@ -268,7 +268,7 @@ public class Main {
     }
 
     public static int pointValue(char piece, int x, int y) {
-        if (totalPoints > 44000) {
+        if (totalPoints > 43000) {
             if (piece == 'p') {
                 return 100 + midgamePstPawn[8*y+x];
             }
@@ -304,44 +304,6 @@ public class Main {
             }
             if (piece == 'K') {
                 return 20000 + midgamePstKing[(8*(7-y)+x)];
-            }
-        }
-        else if (totalPoints > 43000) {
-            if (piece == 'p') {
-                return 100 + (midgamePstPawn[8*y+x] + endgamePstPawn[8*y+x])/2;
-            }
-            if (piece == 'P') {
-                return 100 + (midgamePstPawn[(8*(7-y)+x)] + endgamePstPawn[(8*(7-y)+x)])/2;
-            }
-            if (piece == 'n') {
-                return 320 + (midgamePstKnight[8*y+x] + endgamePstKnight[8*y+x])/2;
-            }
-            if (piece == 'N') {
-                return 320 + (midgamePstKnight[(8*(7-y)+x)] + endgamePstKnight[(8*(7-y)+x)])/2;
-            }
-            if (piece == 'b') {
-                return 330 + (midgamePstBishop[8*y+x] + endgamePstBishop[8*y+x])/2;
-            }
-            if (piece == 'B') {
-                return 330 + (midgamePstBishop[(8*(7-y)+x)] + endgamePstBishop[(8*(7-y)+x)])/2;
-            }
-            if (piece == 'r') {
-                return 500 + (midgamePstRook[8*y+x] + endgamePstRook[8*y+x])/2;
-            }
-            if (piece == 'R') {
-                return 500 + (midgamePstRook[(8*(7-y)+x)] + endgamePstRook[(8*(7-y)+x)])/2;
-            }
-            if (piece == 'q') {
-                return 900 + (midgamePstQueen[8*y+x] + endgamePstQueen[8*y+x])/2;
-            }
-            if (piece == 'Q') {
-                return 900 + (midgamePstQueen[(8*(7-y)+x)] + endgamePstQueen[(8*(7-y)+x)])/2;
-            }
-            if (piece == 'k') {
-                return 20000 + (midgamePstKing[8*y+x] + endgamePstKing[8*y+x])/2;
-            }
-            if (piece == 'K') {
-                return 20000 + (midgamePstKing[(8*(7-y)+x)] + endgamePstKing[(8*(7-y)+x)])/2;
             }
         }
         else {
@@ -649,21 +611,19 @@ public class Main {
             return beta;
         }
         alpha = Math.max(alpha, eval);
-        if (depth > -10) {
-            ArrayList<int[]> captures = fetchMoves( whiteToMove, false, false, true);
-            for (int[] move : captures) {
-                char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
-                if (move[5] > 400) {
-                    unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                    return move[5];
-                }
-                eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
+        ArrayList<int[]> captures = fetchMoves( whiteToMove, false, false, true);
+        for (int[] move : captures) {
+            char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
+            if (move[5] > 400) {
                 unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                if (eval > beta) {
-                    return beta;
-                }
-                alpha = Math.max(alpha, eval);
+                return move[5];
             }
+            eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
+            unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
+            if (eval > beta) {
+                return beta;
+            }
+            alpha = Math.max(alpha, eval);
         }
         return alpha;
     }
@@ -742,6 +702,7 @@ public class Main {
         frame.getContentPane().add(panel);
         frame.setVisible(true);
         frame.addMouseListener(new UserMouse());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         board[0] = new char[]{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
         board[1] = new char[]{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'};
