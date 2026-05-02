@@ -727,11 +727,12 @@ public class Main {
     public static void main(String[] args) {
         initializePst();
         JFrame frame = new JFrame("Chess Bot");
-        frame.setSize(GamePanel.tileSize * 8, GamePanel.tileSize * 8);
+        frame.setSize(GamePanel.tileSize * 8 + frame.getInsets().left + frame.getInsets().right, GamePanel.tileSize * 8 + frame.getInsets().top + frame.getInsets().bottom);
         frame.setResizable(false);
         panel.getImages();
         frame.getContentPane().add(panel);
         frame.setVisible(true);
+        frame.setSize(GamePanel.tileSize * 8 + frame.getInsets().left + frame.getInsets().right, GamePanel.tileSize * 8 + frame.getInsets().top + frame.getInsets().bottom);
         frame.addMouseListener(new UserMouse());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
