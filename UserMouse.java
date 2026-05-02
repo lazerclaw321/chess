@@ -10,7 +10,6 @@ public class UserMouse implements MouseListener {
             Point frameLocation = Main.panel.getLocationOnScreen();
             int tileX = (int) Math.floor(((double) position.x - frameLocation.x) / GamePanel.tileSize);
             int tileY = (int) Math.floor(((double) position.y - frameLocation.y) / GamePanel.tileSize);
-            System.out.println(Main.pointValue(Main.board[tileY][tileX], tileX, tileY));
             if (tileX <= 7 && tileY <= 7) {
                 if (Main.printMoves) {
                     boolean realMove = false;
@@ -52,22 +51,18 @@ public class UserMouse implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
     
 }

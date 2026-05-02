@@ -7,8 +7,8 @@ import java.io.IOException;
 public class GamePanel extends JPanel {
 
     BufferedImage[] images = new BufferedImage[14];
-    public static final int pieceSize = 80;
-    public static final int tileSize = 100;
+    public static final int pieceSize = 70;
+    public static final int tileSize = 85;
 
     public void getImages() {
         try {

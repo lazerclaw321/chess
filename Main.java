@@ -112,7 +112,7 @@ public class Main {
             -36, -26, -12,  -1,  9, -7,   6, -23,
             -45, -25, -16, -17,  3,  0,  -5, -33,
             -44, -16, -20,  -9, -1, 11,  -6, -71,
-            -19, -13,   1,  17, 16,  7, -37, -26,
+            -19, -13,   1,  17, 16,  -20, -37, -26,
         };
         endgamePstRook = new int[] {
             13, 10, 18, 15, 12,  12,   8,   5,
@@ -152,7 +152,7 @@ public class Main {
             -49,  -1, -27, -39, -46, -44, -33, -51,
             -14, -14, -22, -46, -44, -30, -15, -27,
             1,   7,  -8, -64, -43, -16,   9,   8,
-            -15,  36,  12, -54,   8, -28,  24,  14,
+            -15,  36,  12, -54,   8, -28,  38,  14,
         };
         endgamePstKing = new int[] {
             -74, -35, -18, -18, -11,  15,   4, -17,
@@ -712,14 +712,45 @@ public class Main {
                         optimalMove = move;
                     }
                     unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                    System.out.println(Arrays.toString(move) + " " + evaluation);
                 }
             }
             depth++;
-            System.out.println(depth);
         }
-        System.out.println(Arrays.toString(optimalMove) + " " + maxScore + " " + movesCalculated);
-        System.out.println(Instant.now().toEpochMilli() - startingTime);
+        String notation;
+        if ((char)optimalMove[0] == 'K' && optimalMove[1] == 4 && optimalMove[2] == 0 && optimalMove[2] == 2 && optimalMove[3] == 0) {
+            notation = "O-O-O";
+        }
+        else if ((char)optimalMove[0] == 'K' && optimalMove[1] == 4 && optimalMove[2] == 0 && optimalMove[2] == 2 && optimalMove[3] == 0) {
+            notation = "O-O";
+        }
+        else if ((char)optimalMove[0] == 'P') {
+            if (board[optimalMove[4]][optimalMove[3]] != ' ') {
+                notation = (char)(optimalMove[1] + 97) + "x" + (char)(optimalMove[3] + 97) + Integer.toString(8 - optimalMove[4]);
+            }
+            else {
+                notation = (char)(optimalMove[3] + 97) + Integer.toString(8 - optimalMove[4]);
+            }
+        }
+        else {
+            if (board[optimalMove[4]][optimalMove[3]] != ' ') {
+                notation = (((char)optimalMove[0]) + "x" + ((char)(optimalMove[3] + 97)) + Integer.toString(8 - optimalMove[4]));
+            }
+            else {
+                notation = (((char)optimalMove[0]) + "" + ((char)(optimalMove[3] + 97)) + Integer.toString(8 - optimalMove[4]));
+            }
+        }
+        char lastCaptured = makeMove(optimalMove[1], optimalMove[2], optimalMove[3], optimalMove[4], false);
+        if (inCheck(!whiteToMove)) {
+            if (fetchMoves(!whiteToMove, false, false, false).size() == 0) {
+                notation += "#";
+            }
+            else {
+                notation += "+";
+            }
+        }
+        unmakeMove(optimalMove[1], optimalMove[2], optimalMove[3], optimalMove[4], false, lastCaptured);
+        System.out.println("Best move is " + notation + ", which results in a score of " + maxScore + " centipawns.");
+        System.out.println(movesCalculated + " moves were searched at a depth of " + (depth - 1) +  " in " + (Instant.now().toEpochMilli() - startingTime) + " milliseconds.");
         movesCalculated = 0;
         return optimalMove;
     }    
@@ -780,7 +811,6 @@ public class Main {
                     lastMoves = new int[] {selectedX, selectedY, moveX, moveY};
                     panel.repaint();
                     totalPoints = scorePosition(whiteToMove, true);
-                    System.out.println(totalPoints);
                     whiteToMove = !whiteToMove;
                     if (moveY == 0 && piece == 'p') {
                         board[moveY][moveX] = 'q';
@@ -792,14 +822,9 @@ public class Main {
                     selectedY = -1;
                     moveX = -1;
                     moveY = -1;
-                    for (char[] row : board) {
-                        System.out.println(Arrays.toString(row));
-                    }
                 }
             }
-            if (inCheck(whiteToMove)) {
-                System.out.println("check");
-            }
+
             //bot moves
             startingTime = Instant.now().toEpochMilli();
             try {
@@ -832,13 +857,9 @@ public class Main {
             if (target[4] == 7 && board[target[4]][target[3]] == 'P') {
                 board[target[4]][target[3]] = 'Q';
             }
-            System.out.println("--------------------------------------------" + ply);
-            for (char[] row : board) {
-                System.out.println(Arrays.toString(row));
-            }
+
             ply++;
             whiteToMove = !whiteToMove;
-            System.out.println("___________________________________________" + ply);
             /*
             target = botMoves( whiteToMove, false);
             board[target[4]][target[3]] = (char) target[0];
