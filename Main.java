@@ -16,6 +16,7 @@ public class Main {
     static long startingTime;
     static final long minThinkingTime = 5000;
     static final long maxThinkingTime = 10000;
+    static final long maxQsearchTime = 15000;
     static int totalPoints = 0;
 
     static int[] midgamePstPawn = new int[64];
@@ -648,14 +649,14 @@ public class Main {
         if (eval >= beta) {
             return beta;
         }
-        if (Instant.now().toEpochMilli() - startingTime < 15000) {
+        if (Instant.now().toEpochMilli() - startingTime < maxQsearchTime) {
             alpha = Math.max(alpha, eval);
             ArrayList<int[]> captures = fetchMoves( whiteToMove, false, false, true);
             for (int[] move : captures) {
                 char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
                 eval = -quiescenceSearch( !whiteToMove, -beta, -alpha, depth - 1, newBotChanges);
                 unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-                if (eval > beta) {
+                if (eval >= beta) {
                     return beta;
                 }
                 alpha = Math.max(alpha, eval);
@@ -664,8 +665,7 @@ public class Main {
         return alpha;
     }
    
-    public static int search(boolean whiteToMove, int depth, int a, int b, boolean newBotChanges) {
-        int alpha = a, beta = b;
+    public static int search(boolean whiteToMove, int depth, int alpha, int beta, boolean newBotChanges) {
         movesCalculated++;
         if (depth == 0 || Instant.now().toEpochMilli() - startingTime > maxThinkingTime) {
             return quiescenceSearch(whiteToMove, alpha, beta, depth, newBotChanges);
@@ -683,7 +683,7 @@ public class Main {
             char lastCaptured = makeMove(move[1], move[2], move[3], move[4], false);
             int eval = -search(!whiteToMove, depth - 1, -beta, -alpha, newBotChanges);
             unmakeMove(move[1], move[2], move[3], move[4], false, lastCaptured);
-            if (eval > beta) {
+            if (eval >= beta) {
                 return beta;
             }
             alpha = Math.max(alpha, eval);
@@ -796,11 +796,9 @@ public class Main {
                     }
                 }
             }
-            if (inCheck( whiteToMove)) {
+            if (inCheck(whiteToMove)) {
                 System.out.println("check");
             }
-            
-            
             //bot moves
             startingTime = Instant.now().toEpochMilli();
             try {
