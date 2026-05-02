@@ -307,6 +307,12 @@ public class Main {
             if (piece == 'K') {
                 return 20000 + midgamePstKing[(8*(7-y)+x)];
             }
+            if (piece == 'c') {
+                return 200 + midgamePstKnight[8*y+x];
+            }
+            if (piece == 'C') {
+                return 200 + midgamePstKnight[(8*(7-y)+x)];
+            }
         }
         else {
             if (piece == 'p') {
@@ -345,6 +351,12 @@ public class Main {
             if (piece == 'K') {
                 return 20000 + endgamePstKing[(8*(7-y)+x)];
             }
+            if (piece == 'c') {
+                return 200 + endgamePstKnight[8*y+x];
+            }
+            if (piece == 'C') {
+                return 200 + endgamePstKnight[(8*(7-y)+x)];
+            }
         }
         return 0;
     }
@@ -370,6 +382,16 @@ public class Main {
             if (isValidMove(x + 1, y - 2,  whiteToMove, protection)) {moves.add(new int[]{x + 1, y - 2});}
             if (isValidMove(x - 1, y + 2,  whiteToMove, protection)) {moves.add(new int[]{x - 1, y + 2});}
             if (isValidMove(x + 1, y + 2,  whiteToMove, protection)) {moves.add(new int[]{x + 1, y + 2});}
+        }
+        if (board[y][x] == 'c' || board[y][x] == 'C') {
+            if (isValidMove(x - 3, y - 1,  whiteToMove, protection)) {moves.add(new int[]{x - 3, y - 1});}
+            if (isValidMove(x + 3, y - 1,  whiteToMove, protection)) {moves.add(new int[]{x + 3, y - 1});}
+            if (isValidMove(x - 3, y + 1,  whiteToMove, protection)) {moves.add(new int[]{x - 3, y + 1});}
+            if (isValidMove(x + 3, y + 1,  whiteToMove, protection)) {moves.add(new int[]{x + 3, y + 1});}
+            if (isValidMove(x - 1, y - 3,  whiteToMove, protection)) {moves.add(new int[]{x - 1, y - 3});}
+            if (isValidMove(x + 1, y - 3,  whiteToMove, protection)) {moves.add(new int[]{x + 1, y - 3});}
+            if (isValidMove(x - 1, y + 3,  whiteToMove, protection)) {moves.add(new int[]{x - 1, y + 3});}
+            if (isValidMove(x + 1, y + 3,  whiteToMove, protection)) {moves.add(new int[]{x + 1, y + 3});}
         }
         if (board[y][x] == 'k' || board[y][x] == 'K') {
             if (isValidMove(x + 1, y + 1,  whiteToMove, protection)) {moves.add(new int[]{x + 1, y + 1});}

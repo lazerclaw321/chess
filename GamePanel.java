@@ -6,24 +6,26 @@ import java.io.IOException;
 
 public class GamePanel extends JPanel {
 
-    BufferedImage[] images = new BufferedImage[12];
+    BufferedImage[] images = new BufferedImage[14];
     public static final int pieceSize = 80;
     public static final int tileSize = 100;
 
     public void getImages() {
         try {
-            images[0] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_00.png"));
-            images[1] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_01.png"));
-            images[2] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_02.png"));
-            images[3] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_03.png"));
-            images[4] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_04.png"));
-            images[5] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_05.png"));
-            images[6] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_06.png"));
-            images[7] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_07.png"));
-            images[8] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_08.png"));
-            images[9] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_09.png"));
-            images[10] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_10.png"));
-            images[11] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece_11.png"));
+            images[0] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece00.png"));
+            images[1] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece01.png"));
+            images[2] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece02.png"));
+            images[3] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece03.png"));
+            images[4] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece04.png"));
+            images[5] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece05.png"));
+            images[6] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece06.png"));
+            images[7] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece07.png"));
+            images[8] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece08.png"));
+            images[9] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece09.png"));
+            images[10] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece10.png"));
+            images[11] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece11.png"));
+            images[12] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece12.png"));
+            images[13] = ImageIO.read(getClass().getResourceAsStream("chesspieces/chesspiece13.png"));
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -93,6 +95,9 @@ public class GamePanel extends JPanel {
                 if (Main.board[j][i] == 'K') {
                     g2.drawImage(images[11], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
+                if (Main.board[j][i] == 'C') {
+                    g2.drawImage(images[13], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
+                }
                 if (Main.board[j][i] == 'p') {
                     g2.drawImage(images[0], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
@@ -110,6 +115,9 @@ public class GamePanel extends JPanel {
                 }
                 if (Main.board[j][i] == 'k') {
                     g2.drawImage(images[10], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
+                }
+                if (Main.board[j][i] == 'c') {
+                    g2.drawImage(images[12], i * tileSize + (tileSize - pieceSize) / 2, j * tileSize + (tileSize - pieceSize) / 2, pieceSize, pieceSize, null);
                 }
             }
         }
