@@ -11,7 +11,7 @@ public class UserMouse implements MouseListener {
             int tileX = (int) Math.floor(((double) position.x - frameLocation.x) / GamePanel.tileSize);
             int tileY = (int) Math.floor(((double) position.y - frameLocation.y) / GamePanel.tileSize);
             System.out.println(Main.pointValue(Main.board[tileY][tileX], tileX, tileY));
-            if (tileX < 7 && tileY < 7) {
+            if (tileX <= 7 && tileY <= 7) {
                 if (Main.printMoves) {
                     boolean realMove = false;
                     for (int[] move : Main.moves) {
