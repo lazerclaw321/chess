@@ -11,38 +11,40 @@ public class UserMouse implements MouseListener {
             int tileX = (int) Math.floor(((double) position.x - frameLocation.x) / GamePanel.tileSize);
             int tileY = (int) Math.floor(((double) position.y - frameLocation.y) / GamePanel.tileSize);
             System.out.println(Main.pointValue(Main.board[tileY][tileX], tileX, tileY));
-            if (Main.printMoves) {
-                boolean realMove = false;
-                for (int[] move : Main.moves) {
-                    if (move[0] == tileX && move[1] == tileY) {
-                        Main.moveX = tileX;
-                        Main.moveY = tileY;
-                        realMove = true;
-                        break;
+            if (tileX < 7 && tileY < 7) {
+                if (Main.printMoves) {
+                    boolean realMove = false;
+                    for (int[] move : Main.moves) {
+                        if (move[0] == tileX && move[1] == tileY) {
+                            Main.moveX = tileX;
+                            Main.moveY = tileY;
+                            realMove = true;
+                            break;
+                        }
+                    }   
+                    if (!realMove) {
+                        if (Main.board[tileY][tileX] != ' ' && Character.isLowerCase(Main.board[tileY][tileX])) {
+                            Main.selectedX = tileX;
+                            Main.selectedY = tileY;
+                            Main.printMoves = true;
+                            Main.moves = Main.getLegalMoves(Main.selectedX, Main.selectedY, true);
+                        }
+                        else {
+                            Main.selectedX = -1;
+                            Main.selectedY = -1;
+                            Main.printMoves = false;
+                        }
+                        Main.panel.repaint();
                     }
-                }   
-                if (!realMove) {
+                }
+                else {
                     if (Main.board[tileY][tileX] != ' ' && Character.isLowerCase(Main.board[tileY][tileX])) {
                         Main.selectedX = tileX;
                         Main.selectedY = tileY;
                         Main.printMoves = true;
                         Main.moves = Main.getLegalMoves(Main.selectedX, Main.selectedY, true);
+                        Main.panel.repaint();
                     }
-                    else {
-                        Main.selectedX = -1;
-                        Main.selectedY = -1;
-                        Main.printMoves = false;
-                    }
-                    Main.panel.repaint();
-                }
-            }
-            else {
-                if (Main.board[tileY][tileX] != ' ' && Character.isLowerCase(Main.board[tileY][tileX])) {
-                    Main.selectedX = tileX;
-                    Main.selectedY = tileY;
-                    Main.printMoves = true;
-                    Main.moves = Main.getLegalMoves(Main.selectedX, Main.selectedY, true);
-                    Main.panel.repaint();
                 }
             }
         }

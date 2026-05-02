@@ -727,7 +727,7 @@ public class Main {
     public static void main(String[] args) {
         initializePst();
         JFrame frame = new JFrame("Chess Bot");
-        frame.setSize(GamePanel.tileSize * 8 + 13, GamePanel.tileSize * 8 + 38);
+        frame.setSize(GamePanel.tileSize * 8, GamePanel.tileSize * 8);
         frame.setResizable(false);
         panel.getImages();
         frame.getContentPane().add(panel);
